@@ -171,12 +171,20 @@ func readBackup(filename string, contents interface{}) {
 	}
 }
 
+var lastTweet = time.Unix(0, 0)
+
 // send a tweet, via twitter
 func tweet(message string) {
-	api := anaconda.NewTwitterApi(os.Getenv("TWITTER_ACCESS_KEY"), os.Getenv("TWITTER_ACCESS_SECRET"))
-	log.Println(message)
-	_, err := api.PostTweet(message, nil)
-	if err != nil {
-		log.Println("error posting tweet: %#v", err)
+	if time.Since(lastTweet) > 3*time.Hour {
+		log.Printf("@optimistic_dev %#v", message)
+		lastTweet = time.Now()
+
+		api := anaconda.NewTwitterApi(os.Getenv("TWITTER_ACCESS_KEY"), os.Getenv("TWITTER_ACCESS_SECRET"))
+		_, err := api.PostTweet(message, nil)
+		if err != nil {
+			log.Println("error posting tweet: %#v", err)
+		}
+	} else {
+		log.Printf("WANT TO TWEET: %#v", message)
 	}
 }
