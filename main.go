@@ -7,6 +7,7 @@ import (
 	"github.com/go-errors/errors"
 	_ "github.com/joho/godotenv/autoload"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
@@ -118,6 +119,9 @@ func lookupLinks() {
 var counter = make(map[string]int)
 var tweeted = make(map[string]bool)
 
+var exclaim = []string{"OMG!", "Woah!", "Wow!", "OMG!", "Youch!"}
+var awesome = []string{"awesome", "awesome", "awesome", "AWESOME", "amazing", "incredible"}
+
 // storeHits keeps track of the mentioned github repos, and tweets about them
 // because they are all truly awesome.
 func storeHits() {
@@ -130,7 +134,9 @@ func storeHits() {
 		counter[hit] += 1
 		log.Printf("Hit! %#v %v", hit, counter[hit])
 		if counter[hit] == 5 && !tweeted[hit] {
-			tweet("OMG! https://github.com/" + hit + " is awesome! Thanks @" + strings.Split(hit, "/")[0] + " :)")
+			omg := exclaim[rand.Intn(len(exclaim))]
+			awsm := awesome[rand.Intn(len(awesome))]
+			tweet(omg + " https://github.com/" + hit + " is " + awsm + "! Thanks @" + strings.Split(hit, "/")[0] + " :)")
 			tweeted[hit] = true
 			writeBackup("tweeted.json", tweeted)
 		}
