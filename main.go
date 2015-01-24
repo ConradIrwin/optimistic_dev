@@ -133,7 +133,7 @@ func storeHits() {
 	for hit := range hits {
 		counter[hit] += 1
 		log.Printf("Hit! %#v %v", hit, counter[hit])
-		if counter[hit] == 5 && !tweeted[hit] {
+		if counter[hit] == 5 && !tweeted[hit] && isNewProject(hit) {
 			omg := exclaim[rand.Intn(len(exclaim))]
 			awsm := awesome[rand.Intn(len(awesome))]
 			tweet(omg + " https://github.com/" + hit + " is " + awsm + "! Thanks @" + strings.Split(hit, "/")[0] + " :)")
@@ -142,6 +142,30 @@ func storeHits() {
 		}
 		writeBackup("counter.json", counter)
 	}
+}
+
+func isNewProject(hit string) bool {
+
+	resp, err := http.Get("https://api.github.com/repos/" + hit)
+	if err != nil {
+		log.Println("error fetching stars for %s: %#v", hit, err)
+		return false
+	}
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		log.Println("error decoding api response for %s: %#v", hit, err)
+		return false
+	}
+
+	if stargazers_count, ok := response["stargazers_count"].(float64); ok {
+		return stargazers_count < 1000.0
+	} else {
+		log.Println("stargazers was not int64")
+		return false
+	}
+
 }
 
 // writeBackup writes a JSON representation of contents to the file at filename
