@@ -171,6 +171,7 @@ func isNewProject(hit string) bool {
 // writeBackup writes a JSON representation of contents to the file at filename
 func writeBackup(filename string, contents interface{}) {
 	file, err := os.Create(filename)
+	defer file.Close()
 	if err != nil {
 		log.Printf("Couldn't open %s: %#v", filename, err)
 		return
