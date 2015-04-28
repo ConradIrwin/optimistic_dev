@@ -100,6 +100,7 @@ func lookupLinks() {
 			log.Printf("error fetching %s: %v", link, err)
 			continue
 		}
+		defer resp.Body.Close()
 		location, err := resp.Location()
 		if err != nil {
 			log.Printf("error getting location %s: %v", link, err)
@@ -151,6 +152,7 @@ func isNewProject(hit string) bool {
 		log.Println("error fetching stars for %s: %#v", hit, err)
 		return false
 	}
+	defer resp.Body.Close()
 
 	var response map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&response)
